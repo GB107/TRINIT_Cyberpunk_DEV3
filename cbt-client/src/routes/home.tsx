@@ -13,20 +13,20 @@ import TestPage from '../components/testportal';
 import { Box } from '@mui/material';
 import ResponsiveAppBar from '../components/appbar';
 import CollapsibleTable from '../components/browsetests';
+import axios from 'axios';
 
 function App() {
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState({});
   const [authressApiUrlIsSet, setAuthressApiUrlIsSet] = useState(true);
-
-    const [showTestPage, setShowTestPage] = useState<boolean>(false);
   
-    const handleCreateTaskClick = () => {
-      setShowTestPage(true);
-    };
+  const [showTestPage, setShowTestPage] = useState<boolean>(false);
+  const [tests, setTests] = useState([]); // [ { testId: string, testName: string, testDescription: string, testDuration: string, testQuestions: [ { questionId: string, questionText: string, questionOptions: [ { optionId: string, optionText: string, isCorrect: boolean } ] } ] }
   
-
-  // let userProfile;
+  const handleCreateTaskClick = () => {
+    setShowTestPage(true);
+  };
+  
   useEffect(() => {
     async function func() {
       if (starterKitIsConfiguredCorrectly) {
@@ -37,9 +37,45 @@ function App() {
         });
       }
     }
-
+   
     func();
   }, []);
+
+  useEffect(() => {
+    // Check if userProfile is not an empty object and if user is logged in
+    if (userProfile) {
+      // Make API call only if userProfile is available
+      try {
+        axios.post('http://localhost:5000/add-user', {
+          userProfile
+        }).then(response => {
+          console.log('User added successfully:', response.data);
+        }).catch(error => {
+          console.error('Error adding user:', error);
+        });
+      } catch (error) {
+        console.error('Error adding user:', error);
+      }
+    }
+
+    if (userProfile) {
+      try {
+        console.log('Fetching tests for user:', userProfile);
+        const data = axios.post('http://localhost:5000/all-exams', {
+            userProfile
+        }).then(response => {
+          setTests(response.data);
+          console.log('Tests fetched successfully:', response.data);
+        }).catch(error => {
+          console.error('Error fetching tests:', error);
+        });
+      } catch (error) {
+          console.error('Error fetching tests:', error);
+        }
+    }
+
+  }, [userProfile]);
+  
 
   useEffect(() => {
     setAuthressApiUrlIsSet(starterKitIsConfiguredCorrectly);
@@ -58,7 +94,7 @@ function App() {
       <ResponsiveAppBar userProfile = {userProfile} logout = {logout} setShowTestPage = {setShowTestPage} />
           <div style={{ display: 'flex', justifyContent: 'center', }}>
             {!showTestPage ? (
-              <CollapsibleTable />
+              <CollapsibleTable tests = {tests} userProfile = {userProfile} />
             ) : (
               <TestPage />
             )}

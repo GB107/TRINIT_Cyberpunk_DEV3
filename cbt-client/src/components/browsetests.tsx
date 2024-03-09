@@ -14,33 +14,31 @@ import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Button } from '@mui/material';
+import axios from 'axios';
 
-function createData(name, calories, fat, carbs, protein, price) {
+function createData(testId, name, calories, fat, carbs, protein,  history) {
   return {
+    testId,
     name,
     calories,
     fat,
     carbs,
     protein,
-    price,
     history: [
-      {
-        date: '2020-01-05',
-        customerId: '11091700',
-        amount: 3,
-      },
-      {
-        date: '2020-01-02',
-        customerId: 'Anonymous',
-        amount: 1,
-      },
+      history
     ],
   };
 }
 
+
+
 function Row(props) {
+
   const { row } = props;
   const [open, setOpen] = React.useState(false);
+  const [data, setData] = React.useState([]);
+
+
 
   return (
     <React.Fragment>
@@ -79,17 +77,20 @@ function Row(props) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  
                   {row.history.map((historyRow) => (
-                    <TableRow key={historyRow.date}>
+                    <>
+                    <TableRow key={historyRow[0].sectionName}>
                       <TableCell component="th" scope="row">
-                        {historyRow.date}
+                        {historyRow[0].sectionName}
                       </TableCell>
-                      <TableCell>{historyRow.customerId}</TableCell>
-                      <TableCell align="right">{historyRow.amount}</TableCell>
+                      <TableCell>{historyRow[0].totalQuestions}</TableCell>
+                      <TableCell align="right">{historyRow[0].positiveMarks}</TableCell>
                       <TableCell align="right">
-                        {Math.round(historyRow.amount * row.price * 100) / 100}
+                        {historyRow[0].negativeMarks === -1 ? "No Negative Marking" : "-" + historyRow[0].negativeMarks}
                       </TableCell>
                     </TableRow>
+                    </>
                   ))}
                 </TableBody>
               </Table>
@@ -109,7 +110,13 @@ function Row(props) {
                 variant="contained"
                 color='success'
                 onClick={() => {
-                  window.open("http://localhost:5173/?testId=1&userId=2", "_blank");
+                  console.log("http://localhost:5173/?testId=" + 
+                  row.testId + "&userId=" +
+                  props.userProfile.userId)
+
+                  window.open("http://localhost:5173/?testId=" + 
+                  row.testId + "&userId=" +
+                  props.userProfile.userId)
                 }}
  
               >
@@ -142,15 +149,40 @@ Row.propTypes = {
   }).isRequired,
 };
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 3.99),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 4.99),
-  createData('Eclair', 262, 16.0, 24, 6.0, 3.79),
-  createData('Cupcake', 305, 3.7, 67, 4.3, 2.5),
-  createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
-];
+// const rows = [
+//   createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 3.99),
+//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 4.99),
+//   createData('Eclair', 262, 16.0, 24, 6.0, 3.79),
+//   createData('Cupcake', 305, 3.7, 67, 4.3, 2.5),
+//   createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
+// ];
 
-export default function CollapsibleTable() {
+
+export default function CollapsibleTable(props) {
+
+  const [tests, setTests] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
+  
+  React.useEffect(() => {
+    if (props.tests) {
+      setTests(props.tests.tests);
+    }
+}, [props.tests]);
+
+    React.useEffect(() => {
+      if (tests) {
+        // rows.push(createData(test.testName, test.totalQuestions, test.totalMarks, test.rating, test.difficulty, test.sections));
+
+        let rows = [];
+        tests.forEach(test => {
+          rows.push(createData(test.test_id, test.testname, test.totalQuestions,  "100", test.ratings, test.difficulty, test.sectionsWiseData));
+        });
+        setRows(rows);
+
+        console.log(rows)
+      }
+    }, [tests]);
+
   return (
     <TableContainer component={Paper}
       sx={{
@@ -169,8 +201,8 @@ export default function CollapsibleTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <Row key={row.name} row={row} />
+          {rows.map((row, idx) => (
+            <Row key={row.name} row={row} idx = {idx} userProfile = {props.userProfile} />
           ))}
         </TableBody>
       </Table>

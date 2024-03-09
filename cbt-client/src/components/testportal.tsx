@@ -6,14 +6,11 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-// import Textarea from '@mui/joy/Textarea';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
-// import React, { useState } from 'react';
-// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -30,7 +27,6 @@ import Textarea from '@mui/joy/Textarea';
 import { MathJax, MathJaxContext } from 'better-react-mathjax';
 import Latex from 'react-latex-next';
 import LinearProgress from '@mui/material/LinearProgress';
-
 
 function LinearIndeterminate() {
   return (
@@ -56,6 +52,8 @@ interface Question {
 interface Section {
   name: string;
   marks: number;
+  positiveMarks: number;
+  negativeMarks: number;
   schema: string;
   questionType: string;
   questions: Question[];
@@ -78,6 +76,8 @@ const TestPage: React.FC = () => {
   const [manualInstructions, setManualInstructions] = useState<string>('');
   const [pdfInstructions, setPdfInstructions] = useState<string>('');
   const [loader, setLoader] = useState<boolean>(false);
+  const [testName, setTestName] = useState<string>('');
+  const [testDuration, setTestDuration] = useState<string>('');
 
   const [open, setOpen] = useState(false);
 
@@ -95,50 +95,14 @@ const TestPage: React.FC = () => {
       {
         name: `Section ${sections.length + 1}`,
         marks: 0,
+        positiveMarks: 0,
+        negativeMarks: 0,
         schema: '',
         questionType: '',
         questions: [],
       },
     ]);
   };
-
-  //   const manualdata =  [
-  //     {
-  //         "q": "A uniform rod AB of length 2L is maintained at a temperature difference of 120\u00b0C. A bent rod PQ of the same cross-section and length 2 is connected across AB. The temperature difference between P and Q in the steady state is close to:",
-  //         "o1": "45\u00b0C",
-  //         "o2": "60\u00b0C",
-  //         "o3": "75\u00b0C",
-  //         "o4": "35\u00b0C"
-  //     },
-  //     {
-  //         "q": "Two identical beakers A and B contain equal volumes of two different liquids at 60\u00b0C each and are left to cool down. The liquid in A has a density of 8 x 10^2 kg/m^3 and a specific heat of 2000 J kg^-1 K^-1, while the liquid in B has a density of 10^3 kg m^-3 and a specific heat of 4000 J kg^-1 K^-1. Which of the following graphs schematically shows the temperature difference between the two beakers as a function of time?",
-  //         "o1": "",
-  //         "o2": "",
-  //         "o3": "",
-  //         "o4": ""
-  //     },
-  //     {
-  //         "q": "A heat source at T = 10^3 K is connected to another heat reservoir at T = 10^2 K by a copper slab which is 1 m thick. Given that the thermal conductivity of copper is 0.1 WK^-1 m^-1, the energy flux through it in the steady state is:",
-  //         "o1": "90 Wm^-2",
-  //         "o2": "65 Wm^-2",
-  //         "o3": "120 Wm^-2",
-  //         "o4": "200 Wm^-2"
-  //     },
-  //     {
-  //         "q": "Two materials having coefficients of thermal conductivity 3K and K, and thickness d and 3d, respectively, are joined to form a slab as shown in the figure. The temperatures of the outer surfaces are 01 and 02, respectively, with 02 > 01. The temperature at the interface is:",
-  //         "o1": "$\\frac{01+02}{2}$",
-  //         "o2": "$\\frac{2 \\times 01 + 3 \\times 02}{5}$",
-  //         "o3": "$\\frac{3 \\times 01 + 2 \\times 02}{5}$",
-  //         "o4": "$\\frac{01+02}{3}$"
-  //     },
-  //     {
-  //         "q": "A cylinder of radius R is surrounded by a cylindrical shell of inner radius R and outer radius 2R. The thermal conductivity of the material of the inner cylinder is K1 and that of the outer cylinder is K2. Assuming no loss of heat, the effective thermal conductivity of the system for heat flowing along the length of the cylinder is:",
-  //         "o1": "K1 + K2",
-  //         "o2": "2K1 + 3K2",
-  //         "o3": "K1 + 3K2",
-  //         "o4": "4(K1 + K2)"
-  //     }
-  // ]
 
   const handleInputChange = (
     sectionIndex: number,
@@ -187,7 +151,23 @@ const TestPage: React.FC = () => {
   const handleManualSubmit = () => {
     console.log('Manual Instructions:', manualInstructions);
     console.log('Manual Answers:', sections);
+    
+    try {
+      axios.post('http://localhost:5000/add-exam', {
+        testName: testName,
+        testDuration: testDuration,
+        manualInstructions: manualInstructions, 
+        sections: sections
+      }).then(response => {
+        console.log('Test added successfully:', response.data);
+      }).catch(error => {
+        console.error('Error adding test:', error);
+      });
+    } catch (error) {
+      console.error('Error adding test:', error);
+    }
   };
+  
 
   const handlePDFSubmit = async () => {
     if (!selectedFile) {
@@ -201,7 +181,7 @@ const TestPage: React.FC = () => {
     try {
       setLoader(true);
       
-      const response = await axios.post('https://229a-34-125-132-139.ngrok-free.app/OCR', formData, {
+      const response = await axios.post('https://23c1-34-86-160-132.ngrok-free.app/OCR', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -218,6 +198,8 @@ const TestPage: React.FC = () => {
       const sectionData = {
         name: `Section 1`,  
         marks: 0,
+        positiveMarks: 0,
+        negativeMarks: 0,
         schema: '',
         questionType: '',
         questions: manualdata.map((data) => ({
@@ -314,6 +296,21 @@ const TestPage: React.FC = () => {
             rows={4}
             style={{ width: '100%', marginBottom: '10px' }}
           />
+          <Box>
+            <TextField
+              label="Test Name"
+              variant="outlined"
+              value={testName}
+              onChange={(e) => setTestName(e.target.value)}
+              style={{ marginRight: '10px' }}
+            />
+            <TextField
+              label="Test Duration"
+              variant="outlined"
+              value={testDuration}
+              onChange={(e) => setTestDuration(e.target.value)}
+            />
+          </Box>
           <Tabs
             value={currentSection}
             onChange={(e, newValue) => setCurrentSection(newValue)}
@@ -339,7 +336,7 @@ const TestPage: React.FC = () => {
               <Box maxHeight="400px" overflow="auto">
                 <h2>{section.name}</h2>
                 <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={3}>
+                  <Grid item xs={4}>
                     <TextField
                       label="Section Name"
                       variant="outlined"
@@ -351,42 +348,32 @@ const TestPage: React.FC = () => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={4}>
                     <TextField
-                      label="Marks"
+                      label="Positive Marks"
                       variant="outlined"
-                      value={section.marks}
+                      value={section.positiveMarks}
                       onChange={(e) => {
                         const newSections = [...sections];
-                        const marks = parseInt(e.target.value);
-                        newSections[sectionIndex].marks = isNaN(marks)
+                        const positiveMarks = parseInt(e.target.value);
+                        newSections[sectionIndex].positiveMarks = isNaN(positiveMarks)
                           ? 0
-                          : marks;
+                          : positiveMarks;
                         setSections(newSections);
                       }}
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={4}>
                     <TextField
-                      label="Schema"
+                      label="Negative Marks"
                       variant="outlined"
-                      value={section.schema}
+                      value={section.negativeMarks}
                       onChange={(e) => {
                         const newSections = [...sections];
-                        newSections[sectionIndex].schema = e.target.value;
-                        setSections(newSections);
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <TextField
-                      label="Question Type"
-                      variant="outlined"
-                      value={section.questionType}
-                      onChange={(e) => {
-                        const newSections = [...sections];
-                        newSections[sectionIndex].questionType =
-                          e.target.value;
+                        const negativeMarks = parseInt(e.target.value);
+                        newSections[sectionIndex].negativeMarks = isNaN(negativeMarks)
+                          ? 0
+                          : negativeMarks;
                         setSections(newSections);
                       }}
                     />
