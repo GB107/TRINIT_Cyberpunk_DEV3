@@ -114,35 +114,47 @@ function ResponsiveAppBar(props: any) {
             Social CBT
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            
-              <Button
 
-                onClick={() => props.setShowTestPage(true)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Create Test
-              </Button>
-              <Button
+            <Button
 
-                onClick={() => props.setShowTestPage(false)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Browse Tests
-              </Button>
-                            <Button
+              onClick={() => {
+                props.setShowAnalyticsPage(false)
+                props.setShowTestPage(false)
+                props.setShowCreatePage(true)
+              }}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Create Test
+            </Button>
+            <Button
 
-                              onClick={handleCloseNavMenu}
-                              sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                              My Analytics
-                            </Button>
-  
+              onClick={() => {
+                props.setShowAnalyticsPage(false)
+                props.setShowTestPage(true)
+                props.setShowCreatePage(false)
+              }}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Browse Tests
+            </Button>
+            <Button
+
+              onClick={() => {
+                props.setShowAnalyticsPage(true)
+                props.setShowTestPage(false)
+                props.setShowCreatePage(false)
+              }}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              My Analytics
+            </Button>
+
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Remy Sharp" src={props.userProfile.picture} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -162,8 +174,8 @@ function ResponsiveAppBar(props: any) {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={ setting === 'Logout' ? props.logout : handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}  
+                <MenuItem key={setting} onClick={setting === 'Logout' ? props.logout : handleCloseUserMenu}>
+                  <Typography textAlign="center">{setting}
                   </Typography>
                 </MenuItem>
               ))}
