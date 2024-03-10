@@ -112,11 +112,11 @@ function Row(props) {
                 onClick={() => {
                   console.log("http://localhost:5173/?testId=" + 
                   row.testId + "&userId=" +
-                  props.userProfile.userId)
+                  props.userProfile.userId + "&name=" + props.userProfile.name + "&photo=" + props.userProfile.picture)
 
                   window.open("http://localhost:5173/?testId=" + 
-                  row.testId + "&userId=" +
-                  props.userProfile.userId)
+                                    row.testId + "&userId=" +
+                                    props.userProfile.userId + "&name=" + props.userProfile.name + "&photo=" + props.userProfile.picture)
                 }}
  
               >

@@ -13,6 +13,7 @@ import TestPage from '../components/testportal';
 import { Box } from '@mui/material';
 import ResponsiveAppBar from '../components/appbar';
 import CollapsibleTable from '../components/browsetests';
+import BasicLineChart from '../components/analytics';
 import axios from 'axios';
 
 function App() {
@@ -20,7 +21,9 @@ function App() {
   const [userProfile, setUserProfile] = useState({});
   const [authressApiUrlIsSet, setAuthressApiUrlIsSet] = useState(true);
   
-  const [showTestPage, setShowTestPage] = useState<boolean>(false);
+  const [showTestPage, setShowTestPage] = useState<boolean>(true);
+  const [showAnalyticsPage, setShowAnalyticsPage] = useState<boolean>(false);
+  const [showCreatePage, setShowCreatePage] = useState<boolean>(false);
   const [tests, setTests] = useState([]); // [ { testId: string, testName: string, testDescription: string, testDuration: string, testQuestions: [ { questionId: string, questionText: string, questionOptions: [ { optionId: string, optionText: string, isCorrect: boolean } ] } ] }
   
   const handleCreateTaskClick = () => {
@@ -91,12 +94,16 @@ function App() {
     }
     {userProfile && (
       <>
-      <ResponsiveAppBar userProfile = {userProfile} logout = {logout} setShowTestPage = {setShowTestPage} />
+      <ResponsiveAppBar userProfile = {userProfile} logout = {logout} setShowTestPage = {setShowTestPage} setShowAnalyticsPage = {setShowAnalyticsPage} setShowCreatePage = {setShowCreatePage} />
           <div style={{ display: 'flex', justifyContent: 'center', }}>
-            {!showTestPage ? (
-              <CollapsibleTable tests = {tests} userProfile = {userProfile} />
-            ) : (
-              <TestPage />
+
+
+            {showTestPage && <CollapsibleTable tests = {tests} userProfile = {userProfile} />}
+
+            {showCreatePage && <TestPage  />}
+
+            {showAnalyticsPage && (
+              <BasicLineChart />
             )}
           </div>
         </> 
