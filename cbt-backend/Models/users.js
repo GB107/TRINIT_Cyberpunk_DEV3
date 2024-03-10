@@ -6,10 +6,8 @@ const userSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, required: true },
     photo : { type: String, required: true },
-    test: {
-        test_id: { type: String, required: true },
-        answers: { type: Array, required: true }
-    }
+    tests: [{}], 
+
  });
  
 const Users = mongoose.model('cbtusers',userSchema);

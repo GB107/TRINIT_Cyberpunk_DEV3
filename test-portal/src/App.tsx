@@ -229,6 +229,8 @@ const App: React.FC = () => {
   const [data, setData] = useState({});
   const [examName, setExamName] = useState<string>('');
   const [Instructions, setInstructions] = useState<string>('');
+  const [testId,setTestId] = useState<string>('');
+  const [userId,setUserId] = useState<string>('');
   
   function convertData(originalData) {
     const convertedData = {};
@@ -270,6 +272,9 @@ useEffect(() => {
   // Retrieve testId and userId from URL
   const testId = getUrlParameter('testId');
   const userId = getUrlParameter('userId');
+  setTestId(testId);
+  setUserId(userId);
+  
 
   // Do whatever you need with testId and userId
   console.log('testId:', testId);
@@ -351,16 +356,17 @@ useEffect(() => {
     }
     setExamStatus(updatedExamStatus);
     //
-    // try {
-    //   const data = axios.post('http://localhost:5000/sub', {
-    //     examStatus: examStatus,
-    //     testId: 'testId',
-    //     userId: 'userId',
-    //   });
-    //   console.log('Submission successful:');
-    // } catch (error) {
-    //   console.error('Submission failed:', error);
-    // }
+    // console.log(examStatus, "examStatus");
+    try {
+      const data = axios.post('http://localhost:5000/sub', {
+        examStatus: examStatus,
+        testId: testId,
+        userId: userId,
+      });
+      console.log('Submission successful:');
+    } catch (error) {
+      console.error('Submission failed:', error);
+    }
     
 
     if (n >= topicData.length) {

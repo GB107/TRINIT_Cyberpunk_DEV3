@@ -37,8 +37,14 @@ app.post('/saveAnswer', (req, res) => {
 app.post('/add-exam', (req,res)=>{
     examController.addExam(req,res);
 })
-app.post('/add-user', verifyToken, (req,res)=>{
+app.post('/add-user', (req,res)=>{
     userController.AddUser(req,res);
+})
+app.post('/sub', (req,res)=>{
+    examController.saveAnswer(req,res);
+})
+app.post('/getstatus', (req,res)=>{
+    examController.getStatusCounts(req,res);
 })
 app.get('/all-users',(req,res)=>{
     userController.FindUsers(res)
@@ -53,7 +59,7 @@ app.post('/update-user',(req,res)=>{
     userController.UpdateUser(req,res);
 })
 
-app.get('/all-exams',(req,res)=>{
+app.post('/all-exams',(req,res)=>{
     examController.getExams(req,res);
 })
 app.post('/add-question',(req,res)=>{
@@ -62,7 +68,7 @@ app.post('/add-question',(req,res)=>{
 app.post('/delete-question',(req,res)=>{
     examController.deleteQuestion2(req,res);
 })
-app.get('/exams/:id',(req,res)=>{
+app.post('/qp',(req,res)=>{
     examController.getOneExam(req,res);
 });
 app.get('/admin/*',(req,res)=>{

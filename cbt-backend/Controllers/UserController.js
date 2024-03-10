@@ -3,26 +3,55 @@ const jwt = require('jsonwebtoken');
 class userController{
     static AddUser = (req, res) => {
         const dis = this;
-        const userData = {
-            id: req.body.userId,
-            name: req.body.name,
-            email: req.body.email,
-            photo: req.body.picture,
-        };
+        // console.log(req.body.userProfile);
+        const userProfile = req.body.userProfile; 
     
-        const user = new UsersModel(userData);
-        user.save()
-            .then(() => {
-                dis.FindUsers(res);
+        if (!userProfile || !userProfile.userId || !userProfile.name || !userProfile.email || !userProfile.picture) {
+            return res.status(400).send({
+                isSuccessful: false,
+                message: "User profile data is incomplete"
+            });
+        }
+        const userId = userProfile.userId; 
+        UsersModel.findOne({ id: userId }) 
+            .then(existingUser => {
+                if (existingUser) {
+                    return res.status(400).send({
+                        isSuccessful: false,
+                        message: "User already exists"
+                    });
+                } else {
+                    // User with given userId does not exist, create and save
+                    const userData = {
+                        id: userProfile.userId,
+                        name: userProfile.name,
+                        email: userProfile.email,
+                        photo: userProfile.picture,
+                    };
+                    const user = new UsersModel(userData);
+                    user.save()
+                        .then(() => {
+                            dis.FindUsers(res);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            res.status(500).send({
+                                isSuccessful: false,
+                                message: "An error occurred while saving the user"
+                            });
+                        });
+                }
             })
-            .catch((err) => {
+            .catch(err => {
                 console.log(err);
-                res.send({
+                res.status(500).send({
                     isSuccessful: false,
-                    data: err
+                    message: "An error occurred while checking user existence"
                 });
             });
     }
+    
+    
 
     static FindUsers = (res)=>{
         UsersModel.find()
@@ -69,24 +98,7 @@ class userController{
             console.log(err);
         })
     }
-    static DeleteUser = (req,res) =>{const dis = this;
-        UsersModel.findByIdAndDelete(req.body.id)
-        .then(()=>{
-            dis.FindUsers(res);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
-    }
-    static UpdateUser = (req,res) =>{
-        UsersModel.findByIdAndUpdate(req.body.query,req.body.data)
-        .then((result)=>{
-            res.send(result)
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
-    }
+ 
 }
 
 module.exports = userController;
